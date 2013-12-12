@@ -23,14 +23,14 @@ module SimpleCache
   		if cached?(key)
   			if expired?(key, expiration)
   				clear_cache(key)
-  				download_to_cache(url, key)
-  				return retrieve_cache(key)
+  				# Call self to re-retrieve. 
+  				retrieve(url, key, options)
   			else
-  				return retrieve_cache(key)
+  				retrieve_cache(key)
   			end
   		else
   			download_to_cache(url, key)
-  			return retrieve_cache(key)
+  			retrieve_cache(key)
   		end
   	end
 
