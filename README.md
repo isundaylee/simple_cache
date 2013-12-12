@@ -1,6 +1,6 @@
 # SimpleCache
 
-TODO: Write a gem description
+A simple gem that implements a filesystem based download caching system. 
 
 ## Installation
 
@@ -18,7 +18,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+First require it in your code:
+
+```ruby
+require 'simple_cache'
+```
+
+Then create a cacher with a caching directory: 
+
+```ruby
+cacher = SimpleCache::Cacher.new('/tmp/caches')
+```
+
+To downoad the file at `url`, caches it as `key`, and get the content, use `retrieve`: 
+
+```ruby
+content = cacher.retrieve(url, key)
+```
+
+For example: 
+
+```ruby
+content = cacher.retrieve('http://google.com', 'google_front_page')
+```
+
+If you want to retrieve an url, but would not be happy with any data that had been cached more than an hour ago, you can specify an expiration in seconds: 
+
+```ruby
+content = cacher.retrieve('http://google.com', 'google_front_page', expiration: 3600)
+```
 
 ## Contributing
 
