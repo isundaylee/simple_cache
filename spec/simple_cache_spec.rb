@@ -6,7 +6,7 @@ module SimpleCache
 	describe Cacher do
 		before :each do
 			@cache_path = '/tmp/simple_cache_test'
-			@url_to_cache = 'http://nothing.com'
+			@url_to_cache = 'http://nothing.com/'
 			@key_to_cache = 'nothing'
 			@content = 'content'
 
@@ -15,12 +15,8 @@ module SimpleCache
 
 			@cacher = Cacher.new(@cache_path)
 
-			# Stub the open-uri methods
-			@cacher.stub(:open) do |url|
-				url == @url_to_cache ?
-					StringIO.new(@content) :
-					(raise 'Illegal URL accessed. ')
-			end
+			# Stubbing net requests
+			stub_request(:any, @url_to_cache).to_return(body: @content)
 		end
 
 		describe 'initialize' do
@@ -36,9 +32,8 @@ module SimpleCache
 					expect(@cacher.retrieve(@url_to_cache, @key_to_cache)).to eq(@content)
 				end
 
-				it "should download" do
-					@cacher.should_receive(:open).with(@url_to_cache)
-					@cacher.retrieve(@url_to_cache, @key_to_cache)
+				it "should download once" do
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache)).to have_requested(:any, @url_to_cache).once
 				end
 			end
 
@@ -49,9 +44,8 @@ module SimpleCache
 					expect(@cacher.retrieve(@url_to_cache, @key_to_cache)).to eq(@content)
 				end
 
-				it "should not download" do
-					@cacher.should_not_receive(:open)
-					@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
+				it "should only download once" do
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to have_requested(:any, @url_to_cache).once
 				end
 			end
 
@@ -62,9 +56,8 @@ module SimpleCache
 					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to eq(@content)
 				end
 
-				it "should not download" do
-					@cacher.should_not_receive(:open)
-					@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
+				it "should only download once" do
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to have_requested(:any, @url_to_cache).once
 				end
 			end
 
@@ -80,9 +73,8 @@ module SimpleCache
 					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to eq(@content)
 				end
 
-				it "should download" do
-					@cacher.should_receive(:open).with(@url_to_cache)
-					@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
+				it "should download twice" do
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to have_requested(:any, @url_to_cache).twice
 				end
 			end
 		end
