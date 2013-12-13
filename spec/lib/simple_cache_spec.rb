@@ -9,6 +9,7 @@ module SimpleCache
 			@url_to_cache = 'http://nothing.com/'
 			@key_to_cache = 'nothing'
 			@content = 'content'
+			@content_new = 'content_new'
 
 			# Clear the cache dir before each case.
 			FileUtils.rm_rf(@cache_path)
@@ -16,7 +17,7 @@ module SimpleCache
 			@cacher = Cacher.new(@cache_path)
 
 			# Stubbing net requests
-			stub_request(:any, @url_to_cache).to_return(body: @content)
+			stub_request(:any, @url_to_cache).to_return(body: @content).then.to_return(body: @content_new)
 		end
 
 		describe 'initialize' do
@@ -69,8 +70,8 @@ module SimpleCache
 
 				after { Timecop.travel(Time.now - 3600) }
 
-				it "should return the correct value" do
-					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to eq(@content)
+				it "should return the updated value" do
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)).to eq(@content_new)
 				end
 
 				it "should download twice" do
@@ -100,10 +101,10 @@ module SimpleCache
 				after { Timecop.travel(Time.now - 3600) }
 
 				context "when store_urls is enabled" do
-					it "should return correct result" do
+					it "should return the updated result" do
 						@cacher2 = Cacher.new(@cache_path, store_urls: true)
 						@cacher2.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
-						expect(@cacher2.retrieve_by_key(@key_to_cache, expiration: 100)).to eq(@content)
+						expect(@cacher2.retrieve_by_key(@key_to_cache, expiration: 100)).to eq(@content_new)
 					end
 				end
 
