@@ -48,13 +48,13 @@ module SimpleCache
           if @store_urls
             return retrieve(@urls[key], key, options)
           else
-            raise StandardError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. '
+            raise RuntimeError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. '
           end
         else
           return retrieve_cache(key)
         end
       else
-        raise StandardError, 'Cannot retrieve by key. No valid cache available. '
+        raise RuntimeError, 'Cannot retrieve by key. No valid cache available. '
       end
     end
 
