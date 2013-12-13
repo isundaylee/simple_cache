@@ -6,8 +6,11 @@ module SimpleCache
   class Cacher
   	require 'fileutils'
 
-  	def initialize(cache_dir)
+  	def initialize(cache_dir, options = {})
   		@cache_dir = File.expand_path(cache_dir)
+      @store_urls = options[:store_urls] || false
+
+      @urls = {} if @store_urls
 
   		FileUtils.mkdir_p(@cache_dir)
   	end
@@ -30,9 +33,30 @@ module SimpleCache
   			end
   		else
   			download_to_cache(url, key)
+        @urls[key] = url if @store_urls
   			retrieve_cache(key)
   		end
   	end
+
+    def retrieve_by_key(key, options = {})
+      show_progress = options[:show_progress] || false
+
+      expiration = options[:expiration] || nil
+
+      if cached?(key)
+        if expired?(key, expiration)
+          if @store_urls
+            return retrieve(@urls[key], key, options)
+          else
+            raise StandardError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. '
+          end
+        else
+          return retrieve_cache(key)
+        end
+      else
+        raise StandardError, 'Cannot retrieve by key. No valid cache available. '
+      end
+    end
 
   	private
   		def cached?(key)

@@ -78,5 +78,42 @@ module SimpleCache
 				end
 			end
 		end
+
+		describe "retrieve_by_key" do
+			context "when the request is first-time" do
+				it "should raise exception" do
+					expect { @cacher.retrieve_by_key('none_existing') }.to raise_exception
+				end
+			end
+
+			context "when the request has been validly cached" do
+				before { @cacher.retrieve(@url_to_cache, @key_to_cache) }
+
+				it "should return correct result" do
+					expect(@cacher.retrieve_by_key(@key_to_cache)).to eq(@content)
+				end
+			end
+
+			context "when the request has been cached and has expired" do
+				before { Timecop.travel(Time.now + 3600) }
+
+				after { Timecop.travel(Time.now - 3600) }
+
+				context "when store_urls is enabled" do
+					it "should return correct result" do
+						@cacher2 = Cacher.new(@cache_path, store_urls: true)
+						@cacher2.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
+						expect(@cacher2.retrieve_by_key(@key_to_cache, expiration: 100)).to eq(@content)
+					end
+				end
+
+				context "when store_urls is not enabled" do
+					it "should raise exception" do
+						@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
+						expect { @cacher.retrieve_by_key(@key_to_cache, expiration: 100) }.to raise_exception
+					end
+				end
+			end
+		end
 	end
 end
