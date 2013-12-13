@@ -5,6 +5,11 @@ module SimpleCache
   class Cacher
     require 'fileutils'
 
+    # Initializes the Cacher.
+    #
+    # @param cache_dir [String] The directory of the cache files. 
+    # @param options [Hash] Options for the Cacher. 
+    # @option options [Boolean] :store_urls (false) If the cacher should store urls associated with requested keys. This behavior defaults to false to save resources, but is especially useful when used with {#retrieve_by_key} alongside cache expiration, since if the urls are not stored, it would be impossible to refresh the cache given only the key. If this option is turned off, and an expired cache is requested with only key given, a RuntimeError would be raised. 
     def initialize(cache_dir, options = {})
       @cache_dir = File.expand_path(cache_dir)
       @store_urls = options[:store_urls] || false
@@ -14,6 +19,13 @@ module SimpleCache
       FileUtils.mkdir_p(@cache_dir)
     end
 
+    # Returns the contents at an URL. Uses cached results if available. 
+    #
+    # @param url [String] The URL to be retrieved. 
+    # @param key [String] The cache key to be associated with the URL. 
+    # @param options [Hash] Additional options. 
+    # @option options [Boolean] :show_progress (false) If the cacher should display the downloading progress. Not yet implemented. 
+    # @option options [Fixnum, nil] :expiration (nil) Expiration time (in seconds) for the cached results. If this is set to nil, the cached results would never expire. 
     def retrieve(url, key, options = {})
       # Defaults to hide caching progress.
       show_progress = options[:show_progress] || false
@@ -37,6 +49,13 @@ module SimpleCache
       end
     end
 
+    # Returns the cached results associated with a cache key. 
+    #
+    # @param key [String] The cache key. 
+    # @param options [Hash] Additional options. 
+    # @option options [Boolean] :show_progress (false) See {#retrieve}. 
+    # @option options [Fixnum, nil] :expiration (nil) See {#retrieve}. 
+    # @raise [RuntimeError] if the cached results have expired and the original urls cannot be retrieved because {:store_urls} is turned off. See {#initialize}. 
     def retrieve_by_key(key, options = {})
       show_progress = options[:show_progress] || false
 

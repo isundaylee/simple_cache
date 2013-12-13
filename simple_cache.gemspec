@@ -25,4 +25,7 @@ Gem::Specification.new do |spec|
 
   # WebMock for testing net requests
   spec.add_development_dependency "webmock"
+
+  # Documentation
+  spec.add_development_dependency "yard"
 end
