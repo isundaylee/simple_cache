@@ -82,8 +82,8 @@ module SimpleCache
 
 		describe "retrieve_by_key" do
 			context "when the request is first-time" do
-				it "should raise exception" do
-					expect { @cacher.retrieve_by_key('none_existing') }.to raise_exception
+				it "should raise RuntimeError" do
+					expect { @cacher.retrieve_by_key('none_existing') }.to raise_exception(RuntimeError)
 				end
 			end
 
@@ -109,9 +109,9 @@ module SimpleCache
 				end
 
 				context "when store_urls is not enabled" do
-					it "should raise exception" do
+					it "should raise RuntimeError" do
 						@cacher.retrieve(@url_to_cache, @key_to_cache, expiration: 100)
-						expect { @cacher.retrieve_by_key(@key_to_cache, expiration: 100) }.to raise_exception
+						expect { @cacher.retrieve_by_key(@key_to_cache, expiration: 100) }.to raise_exception(RuntimeError)
 					end
 				end
 			end
