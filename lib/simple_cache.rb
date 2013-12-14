@@ -120,7 +120,7 @@ module SimpleCache
               true
             end
           else
-            curl.on_progress {}
+            curl.on_progress { true }
           end
         end
 

@@ -36,6 +36,11 @@ module SimpleCache
 					expect(strio.string.include?('|')).to be_true
 					expect(strio.string.include?('%')).to be_true
 				end
+
+				it "should return correct value" do
+					# Case for AbortedByCallbackError
+					expect(@cacher.retrieve(@url_to_cache, @key_to_cache, show_progress: true)).to eq(@content)
+				end
 			end
 
 			context "when never cached" do
