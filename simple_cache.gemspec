@@ -28,4 +28,7 @@ Gem::Specification.new do |spec|
 
   # Documentation
   spec.add_development_dependency "yard"
+
+  # Curb
+  spec.add_dependency "curb"
 end

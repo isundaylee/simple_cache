@@ -5,6 +5,7 @@ module SimpleCache
   class Cacher
     require 'fileutils'
     require 'digest/md5'
+    require 'curb'
 
     # Initializes the Cacher.
     #
@@ -102,9 +103,13 @@ module SimpleCache
         File.open(cache_path(key)).read
       end
 
-      def download_to_cache(url, key)
+      def download_to_cache(url, key, show = false)
         # First download to a temporary file. 
-        download(url, tmp_path(key))
+        curl = Curl.get(url) do |curl|
+          curl.connect_timeout = 15
+        end
+
+        File.write(tmp_path(key), curl.body_str)
 
         # Rename it. 
         FileUtils.mv(tmp_path(key), cache_path(key))
