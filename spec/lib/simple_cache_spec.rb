@@ -28,6 +28,16 @@ module SimpleCache
 
 		describe 'retrieve' do
 
+			context "when show_progress is on" do
+				it "should output progress including # and %" do
+					$stdout = (strio = StringIO.new)
+					@cacher.retrieve(@url_to_cache, @key_to_cache, show_progress: be_true)
+					$stdout = STDOUT
+					expect(strio.string.include?('|')).to be_true
+					expect(strio.string.include?('%')).to be_true
+				end
+			end
+
 			context "when never cached" do
 				it "should return the correct value" do
 					expect(@cacher.retrieve(@url_to_cache, @key_to_cache)).to eq(@content)

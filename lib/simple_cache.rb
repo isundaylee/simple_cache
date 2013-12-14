@@ -26,7 +26,7 @@ module SimpleCache
     # @param url [String] The URL to be retrieved. 
     # @param key [String] The cache key to be associated with the URL. 
     # @param options [Hash] Additional options. 
-    # @option options [Boolean] :show_progress (false) If the cacher should display the downloading progress. Not yet implemented. 
+    # @option options [Boolean] :show_progress (false) If the cacher should display the downloading progress. 
     # @option options [Fixnum, nil] :expiration (nil) Expiration time (in seconds) for the cached results. If this is set to nil, the cached results would never expire. 
     def retrieve(url, key, options = {})
       # Defaults to hide caching progress.
@@ -45,7 +45,7 @@ module SimpleCache
           retrieve_cache(key)
         end
       else
-        download_to_cache(url, key)
+        download_to_cache(url, key, show_progress)
         @urls[key] = url if @store_urls
         retrieve_cache(key)
       end
@@ -107,12 +107,28 @@ module SimpleCache
         # First download to a temporary file. 
         curl = Curl.get(url) do |curl|
           curl.connect_timeout = 15
+          if show
+            curl.on_progress do |dn, dt, un, nt|
+              prog = 1.0 * dn / dt
+              a = (prog * 70).to_i
+              b = 70 - a
+              print "\r"
+              print '#' * a
+              print ' ' * b
+              print ' | '
+              print '%2.2f%' % (prog * 100)
+            end
+          else
+            curl.on_progress {}
+          end
         end
 
         File.write(tmp_path(key), curl.body_str)
 
         # Rename it. 
         FileUtils.mv(tmp_path(key), cache_path(key))
+
+        puts if show
       end
 
       def download(url, path)
