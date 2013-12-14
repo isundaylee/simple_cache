@@ -117,6 +117,7 @@ module SimpleCache
               print ' ' * b
               print ' | '
               print '%2.2f%' % (prog * 100)
+              true
             end
           else
             curl.on_progress {}
