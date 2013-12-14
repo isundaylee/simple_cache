@@ -116,5 +116,32 @@ module SimpleCache
 				end
 			end
 		end
+
+		describe "retrieve_by_url" do
+			context "when validly cached" do
+				before { @cacher.retrieve_by_url(@url_to_cache) }
+
+				it "should return the correct value" do
+					expect(@cacher.retrieve_by_url(@url_to_cache)).to eq(@content)
+				end
+
+				it "should only download once" do
+					expect(@cacher.retrieve_by_url(@url_to_cache)).to have_requested(:any, @url_to_cache).once
+				end
+			end
+
+			context "when cached results have expired" do
+				before do
+					@cacher.retrieve_by_url(@url_to_cache, expiration: 100)
+					Timecop.travel(Time.now + 3600)
+				end
+
+				after { Timecop.travel(Time.now - 3600) }
+
+				it "should return the updated result" do
+					expect(@cacher.retrieve_by_url(@url_to_cache, expiration: 100)).to eq(@content_new)
+				end
+			end
+		end
 	end
 end

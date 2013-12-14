@@ -4,6 +4,7 @@ module SimpleCache
 
   class Cacher
     require 'fileutils'
+    require 'digest/md5'
 
     # Initializes the Cacher.
     #
@@ -74,6 +75,14 @@ module SimpleCache
       else
         raise RuntimeError, 'Cannot retrieve by key. No valid cache available. '
       end
+    end
+
+    # Returns the cached results associated with a url. Use default cache key generated from url.
+    #
+    # @param url [String] The requested URL.
+    # @param options [Hash] Additional options. See {#retrieve}. 
+    def retrieve_by_url(url, options = {})
+      retrieve(url, Digest::MD5.hexdigest(url), options)
     end
 
     private
