@@ -109,7 +109,7 @@ module SimpleCache
           curl.connect_timeout = 15
           if show
             curl.on_progress do |dn, dt, un, nt|
-              prog = 1.0 * dn / dt
+              prog = dt == 0 ? 0 : 1.0 * dn / dt
               a = (prog * 70).to_i
               b = 70 - a
               print "\r"
