@@ -158,5 +158,20 @@ module SimpleCache
 				end
 			end
 		end
+
+		describe "clear" do
+			before do
+				@cacher.retrieve_by_url(@url_to_cache)
+				@cacher.clear
+			end
+
+			it "should remove all files in the cache directory" do
+				expect(Dir.glob(File.join(@cache_path, '*')).size).to eq(0)
+			end
+
+			it "should recreate the cache directory" do
+				expect(File.exists?(@cache_path)).to be_true
+			end
+		end
 	end
 end

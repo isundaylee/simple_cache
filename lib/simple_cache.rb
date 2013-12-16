@@ -87,6 +87,12 @@ module SimpleCache
       retrieve(url, Digest::MD5.hexdigest(url), options)
     end
 
+    # Removes all cached results. 
+    def clear
+      FileUtils.rm_rf(@cache_dir)
+      FileUtils.mkdir_p(@cache_dir)
+    end
+
     private
       def cached?(key)
         File.exists?(cache_path(key))
