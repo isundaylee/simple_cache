@@ -10,9 +10,9 @@ module SimpleCache
 
     # Initializes the Cacher.
     #
-    # @param cache_dir [String] The directory of the cache files. 
-    # @param options [Hash] Options for the Cacher. 
-    # @option options [Boolean] :store_urls (false) If the cacher should store urls associated with requested keys. This behavior defaults to false to save resources, but is especially useful when used with {#retrieve_by_key} alongside cache expiration, since if the urls are not stored, it would be impossible to refresh the cache given only the key. If this option is turned off, and an expired cache is requested with only key given, a RuntimeError would be raised. 
+    # @param cache_dir [String] The directory of the cache files.
+    # @param options [Hash] Options for the Cacher.
+    # @option options [Boolean] :store_urls (false) If the cacher should store urls associated with requested keys. This behavior defaults to false to save resources, but is especially useful when used with {#retrieve_by_key} alongside cache expiration, since if the urls are not stored, it would be impossible to refresh the cache given only the key. If this option is turned off, and an expired cache is requested with only key given, a RuntimeError would be raised.
     def initialize(cache_dir, options = {})
       @cache_dir = File.expand_path(cache_dir)
       @store_urls = options[:store_urls] || false
@@ -22,13 +22,13 @@ module SimpleCache
       FileUtils.mkdir_p(@cache_dir)
     end
 
-    # Returns the contents at an URL. Uses cached results if available. 
+    # Returns the contents at an URL. Uses cached results if available.
     #
-    # @param url [String] The URL to be retrieved. 
-    # @param key [String] The cache key to be associated with the URL. 
-    # @param options [Hash] Additional options. 
-    # @option options [Boolean] :show_progress (false) If the cacher should display the downloading progress. 
-    # @option options [Fixnum, nil] :expiration (nil) Expiration time (in seconds) for the cached results. If this is set to nil, the cached results would never expire. 
+    # @param url [String] The URL to be retrieved.
+    # @param key [String] The cache key to be associated with the URL.
+    # @param options [Hash] Additional options.
+    # @option options [Boolean] :show_progress (false) If the cacher should display the downloading progress.
+    # @option options [Fixnum, nil] :expiration (nil) Expiration time (in seconds) for the cached results. If this is set to nil, the cached results would never expire.
     def retrieve(url, key, options = {})
       # Defaults to hide caching progress.
       show_progress = options[:show_progress] || false
@@ -45,15 +45,15 @@ module SimpleCache
           # Raise exception if url is not given and cannot be retrived.
           raise RuntimeError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. ' unless url
 
-          # Remove previous results. 
+          # Remove previous results.
           clear_cache(key)
-          # Call self to re-retrieve. 
+          # Call self to re-retrieve.
           retrieve(url, key, options)
         else
           retrieve_cache(key)
         end
       else
-        # Raise exception if url is omitted for first-time retrieval. 
+        # Raise exception if url is omitted for first-time retrieval.
         raise RuntimeError, 'Cannot retrieve by key. No valid cache available. ' unless url
 
         download_to_cache(url, key, show_progress)
@@ -62,13 +62,13 @@ module SimpleCache
       end
     end
 
-    # Returns the cached results associated with a cache key. 
+    # Returns the cached results associated with a cache key.
     #
-    # @param key [String] The cache key. 
-    # @param options [Hash] Additional options. 
-    # @option options [Boolean] :show_progress (false) See {#retrieve}. 
-    # @option options [Fixnum, nil] :expiration (nil) See {#retrieve}. 
-    # @raise [RuntimeError] if the cached results have expired and the original urls cannot be retrieved because {:store_urls} is turned off. See {#initialize}. 
+    # @param key [String] The cache key.
+    # @param options [Hash] Additional options.
+    # @option options [Boolean] :show_progress (false) See {#retrieve}.
+    # @option options [Fixnum, nil] :expiration (nil) See {#retrieve}.
+    # @raise [RuntimeError] if the cached results have expired and the original urls cannot be retrieved because {:store_urls} is turned off. See {#initialize}.
     def retrieve_by_key(key, options = {})
       return retrieve(nil, key, options)
     end
@@ -76,12 +76,12 @@ module SimpleCache
     # Returns the cached results associated with a url. Use default cache key generated from url.
     #
     # @param url [String] The requested URL.
-    # @param options [Hash] Additional options. See {#retrieve}. 
+    # @param options [Hash] Additional options. See {#retrieve}.
     def retrieve_by_url(url, options = {})
       retrieve(url, Digest::MD5.hexdigest(url), options)
     end
 
-    # Removes all cached results. 
+    # Removes all cached results.
     def clear
       FileUtils.rm_rf(@cache_dir)
       FileUtils.mkdir_p(@cache_dir)
@@ -111,7 +111,7 @@ module SimpleCache
           progress_bar.bar_mark = '#'
         end
 
-        # First download to a temporary file.  
+        # First download to a temporary file.
         curl_request = Curl.get(url) do |curl|
           curl.connect_timeout = 15
           if show
@@ -129,7 +129,7 @@ module SimpleCache
 
         File.write(tmp_path(key), curl_request.body_str)
 
-        # Rename it. 
+        # Rename it.
         FileUtils.mv(tmp_path(key), cache_path(key))
       end
 
