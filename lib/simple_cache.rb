@@ -115,7 +115,7 @@ module SimpleCache
         curl = Curl.get(url) do |curl|
           curl.connect_timeout = 15
           if show
-            curl.on_progress do |dn, dt, un, nt|
+            curl.on_progress do |dt, dn, ut, un|
               prog = (dt == 0 ? 0 : 100 * dn / dt).to_i
               progress_bar.set(prog)
               true
