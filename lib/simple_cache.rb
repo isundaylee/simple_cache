@@ -37,8 +37,15 @@ module SimpleCache
       # Otherwise, cache expires after expiration seconds.
       expiration = options[:expiration] || nil
 
+      # If store_urls is enabled, try to retrieve the url.
+      url ||= @urls[key] if @store_urls
+
       if cached?(key)
         if expired?(key, expiration)
+          # Raise exception if url is not given and cannot be retrived.
+          raise RuntimeError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. ' unless url
+
+          # Remove previous results. 
           clear_cache(key)
           # Call self to re-retrieve. 
           retrieve(url, key, options)
@@ -46,6 +53,9 @@ module SimpleCache
           retrieve_cache(key)
         end
       else
+        # Raise exception if url is omitted for first-time retrieval. 
+        raise RuntimeError, 'Cannot retrieve by key. No valid cache available. ' unless url
+
         download_to_cache(url, key, show_progress)
         @urls[key] = url if @store_urls
         retrieve_cache(key)
@@ -60,23 +70,7 @@ module SimpleCache
     # @option options [Fixnum, nil] :expiration (nil) See {#retrieve}. 
     # @raise [RuntimeError] if the cached results have expired and the original urls cannot be retrieved because {:store_urls} is turned off. See {#initialize}. 
     def retrieve_by_key(key, options = {})
-      show_progress = options[:show_progress] || false
-
-      expiration = options[:expiration] || nil
-
-      if cached?(key)
-        if expired?(key, expiration)
-          if @store_urls
-            retrieve(@urls[key], key, options)
-          else
-            raise RuntimeError, 'Cannot retrieve by key. Cache expired but store_urls not enabled. '
-          end
-        else
-          retrieve_cache(key)
-        end
-      else
-        raise RuntimeError, 'Cannot retrieve by key. No valid cache available. '
-      end
+      return retrieve(nil, key, options)
     end
 
     # Returns the cached results associated with a url. Use default cache key generated from url.
