@@ -6,6 +6,7 @@ module SimpleCache
     require 'fileutils'
     require 'digest/md5'
     require 'curb'
+    require 'progressbar'
 
     # Initializes the Cacher.
     #
@@ -104,19 +105,19 @@ module SimpleCache
       end
 
       def download_to_cache(url, key, show = false)
-        # First download to a temporary file. 
+        # Create the progress bar if show_progress is on
+        if show
+          progress_bar = ProgressBar.new('Caching', 100, $stderr) if show
+          progress_bar.bar_mark = '#'
+        end
+
+        # First download to a temporary file.  
         curl = Curl.get(url) do |curl|
           curl.connect_timeout = 15
           if show
             curl.on_progress do |dn, dt, un, nt|
-              prog = dt == 0 ? 0 : 1.0 * dn / dt
-              a = (prog * 70).to_i
-              b = 70 - a
-              print "\r"
-              print '#' * a
-              print ' ' * b
-              print ' | '
-              print '%2.2f%' % (prog * 100)
+              prog = (dt == 0 ? 0 : 100 * dn / dt).to_i
+              progress_bar.set(prog)
               true
             end
           else
@@ -124,12 +125,12 @@ module SimpleCache
           end
         end
 
+        progress_bar.finish if show
+
         File.write(tmp_path(key), curl.body_str)
 
         # Rename it. 
         FileUtils.mv(tmp_path(key), cache_path(key))
-
-        puts if show
       end
 
       def download(url, path)

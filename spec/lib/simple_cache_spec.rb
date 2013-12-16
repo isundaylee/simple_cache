@@ -30,9 +30,9 @@ module SimpleCache
 
 			context "when show_progress is on" do
 				it "should output progress including # and %" do
-					$stdout = (strio = StringIO.new)
+					$stderr = (strio = StringIO.new)
 					@cacher.retrieve(@url_to_cache, @key_to_cache, show_progress: be_true)
-					$stdout = STDOUT
+					$stderr = STDERR
 					expect(strio.string.include?('|')).to be_true
 					expect(strio.string.include?('%')).to be_true
 				end

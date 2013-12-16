@@ -31,4 +31,7 @@ Gem::Specification.new do |spec|
 
   # Curb
   spec.add_dependency "curb"
+
+  # Progressbar
+  spec.add_dependency "progressbar"
 end
