@@ -133,11 +133,6 @@ module SimpleCache
         FileUtils.mv(tmp_path(key), cache_path(key))
       end
 
-      def download(url, path)
-        require 'open-uri'
-        File.write(path, open(url).read)
-      end
-
       def cache_path(key)
         File.join(@cache_dir, key)
       end
