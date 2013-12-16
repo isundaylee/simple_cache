@@ -112,7 +112,7 @@ module SimpleCache
         end
 
         # First download to a temporary file.  
-        curl = Curl.get(url) do |curl|
+        curl_request = Curl.get(url) do |curl|
           curl.connect_timeout = 15
           if show
             curl.on_progress do |dt, dn, ut, un|
@@ -127,7 +127,7 @@ module SimpleCache
 
         progress_bar.finish if show
 
-        File.write(tmp_path(key), curl.body_str)
+        File.write(tmp_path(key), curl_request.body_str)
 
         # Rename it. 
         FileUtils.mv(tmp_path(key), cache_path(key))
